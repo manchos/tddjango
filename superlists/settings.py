@@ -25,7 +25,7 @@ SECRET_KEY = 'lp(s9=hxy)(*16v*4+m@$6(g4o7sp4tf$fc+-h^5oyg6$=o0fo'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['localhost', '127.0.0.1']
 
 
 # Application definition
