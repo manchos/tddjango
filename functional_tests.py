@@ -3,7 +3,7 @@ from selenium.webdriver.common.keys import Keys
 import time
 import unittest
 
-class NewVisitorTEst(unittest.TestCase):
+class NewVisitorTest(unittest.TestCase):
     '''тест нового посетителя'''
 
     def setUp(self):
@@ -13,6 +13,12 @@ class NewVisitorTEst(unittest.TestCase):
     def tearDown(self):
         '''демонтаж'''
         self.browser.quit()
+
+    def check_for_row_in_list_table(self, row_text):
+        table = self.browser.find_element_by_id('id_list_table')
+        rows = table.find_elements_by_tag_name('tr')
+        self.assertIn(row_text, [row.text for row in rows])
+
 
     def test_can_start_a_list_and_retrieve_it_later(self):
         # Edith has heard about a cool new online to-do app. She goes
@@ -51,13 +57,8 @@ class NewVisitorTEst(unittest.TestCase):
         time.sleep(1)
 
         # The page updates again, and now shows both items on her list
-        table = self.browser.find_element_by_id('id_list_table')
-        rows = table.find_elements_by_tag_name('tr')
-
-        self.assertIn('1: Купить павлиньи перья', [row.text for row in rows])
-        self.assertIn('2: Сделать мушку из павлиньих перьев', [row.text for row in rows])
-
-
+        self.check_for_row_in_list_table('1: Купить павлиньи перья')
+        self.check_for_row_in_list_table('2: Сделать мушку из павлиньих перьев')
 
 
         # Edith wonders whether the site will remember her list. Then she sees
