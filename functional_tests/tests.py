@@ -24,7 +24,7 @@ class NewVisitorTest(LiveServerTestCase):
         while True:
             try:
                 table = self.browser.find_element_by_id('id_list_table')
-                rows = table.fingit pushd_elements_by_tag_name('tr')
+                rows = table.find_element_by_tag_name('tr')
                 self.assertIn(row_text, [row.text for row in rows])
                 return
             except (AssertionError, WebDriverException) as e:
@@ -33,7 +33,7 @@ class NewVisitorTest(LiveServerTestCase):
                 time.sleep(0.5)
 
 
-    def test_can_start_a_list_and_retrieve_it_later(self):
+    def test_can_start_a_list_for_one_user(self):
         # Edith has heard about a cool new online to-do app. She goes
         # to check out its homepage
         self.browser.get(self.live_server_url)
@@ -58,7 +58,8 @@ class NewVisitorTest(LiveServerTestCase):
         # When she hits enter, the page updates, and now the page lists
         # "1: Buy peacock feathers" as an item in a to-do list
         inputbox.send_keys(Keys.ENTER)
-        time.sleep(1)
+        self.wait_for_row_in_list_table('1: Купить павлиньи перья')
+        # time.sleep(1)
 
         # There is still a text box inviting her to add another item. She
         # enters "Use peacock feathers to make a fly" (Edith is very methodical)
@@ -81,6 +82,50 @@ class NewVisitorTest(LiveServerTestCase):
 
         # Satisfied, she goes back to sleep
 
+    def test_multiple_users_can_start_lists_at_different_urls(self):
+        ''' '''
+        #  Эдит начинает новый список
+        self.browser.get(self.live_server_url)
+        inputbox = self.browser.find_element_by_id('id_new_item')
+        inputbox.send_keys('Купить павлиньи перья')
+        inputbox.send_keys(Keys.ENTER)
+        self.wait_for_row_in_list_table('1: Купить павлиньи перья')
+
+        # Она, замечает что ее список имеет уникальный URL адрес
+        edith_lists_url = self.browser.current_url
+        self.assertRegex(edith_lists_url, '/lists/.+')
+
+        # Теперь новый пользователь Френсис приходит на сайт
+
+        ## Мы используем новый сеанс браузера, тем самым обеспечивая, чтобы никакая информация
+        ## от Эдит не прошла через данные cookie и пр
+
+        self.browser.quit()
+        self.browser = webdriver.Firefox()
+
+        # Френсис посещает домашнюю страницу. Нет никаких признакаов Эдит
+        self.browser.get(self.live_server_url)
+        page_text = self.browser.find_element_by_tag_name('body').text
+        self.assertNotIn('Купить павлиньи перья', page_text)
+        self.assertNotIn('Сделать мушку', page_text)
+
+        # Фрэнсис начинает новый список, вводя новый элемент
+        inputbox = self.browser.find_element_by_id('id_new_item')
+        inputbox.send_keys('Купить молоко')
+        inputbox.send_keys(Keys.ENTER)
+        self.wait_for_row_in_list_table('1: Купить молоко')
+
+        # Фрэнсис получает уникальный URL адрес
+        francis_lists_url = self.browser.current_url
+        self.assertRegex(francis_lists_url, '/lists/.+')
+        self.assertNotEqual(francis_lists_url, edith_lists_url)
+
+        # Опять таки нет ни следа от списка Эдит
+        page_text = self.browser.find_element_by_tag_name('body').text
+        self.assertNotIn('Купить павлиньи перья', page_text)
+        self.assertNotIn('Сделать мушку', page_text)
+
+        # Удовлетворенные они оба ложаться спать
 
 if __name__ == '__main__':
     unittest.main(warnings='ignore')
