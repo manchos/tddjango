@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.urls import path, re_path
-from lists import views
+from . import views
 
 urlpatterns = [
     re_path(r'^new$', views.new_list, name='new_list'),

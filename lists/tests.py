@@ -1,8 +1,8 @@
 from django.test import TestCase
 from django.urls import resolve
-from lists.views import home_page
+from .views import home_page
 from django.http import HttpRequest
-from lists.models import Item, List
+from .models import Item, List
 
 # Create your tests here.
 
@@ -67,7 +67,6 @@ class ListViewTest(TestCase):
 
         self.assertNotContains(response, 'Другой элемент 1 списка')
         self.assertNotContains(response, 'Другой элемент 2 списка')
-
 
 
 class NewListTest(TestCase):

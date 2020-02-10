@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect
 from django.http import HttpResponse
-from lists.models import Item, List
+from .models import Item, List
 
 # Create your views here.
 
@@ -21,6 +21,7 @@ def new_list(request):
     else:
         Item.objects.create(text='A new list item', list=list_)
     return redirect(f'/lists/{list_.id}/')
+
 
 def add_item(request, list_id):
     list_ = List.objects.get(id=list_id)

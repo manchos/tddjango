@@ -126,5 +126,6 @@ class NewVisitorTest(LiveServerTestCase):
 
         # Удовлетворенные они оба ложаться спать
 
+
 if __name__ == '__main__':
     unittest.main(warnings='ignore')
