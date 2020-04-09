@@ -7,18 +7,20 @@ import unittest
 
 MAX_WAIT = 10
 
+
 class NewVisitorTest(LiveServerTestCase):
-    '''тест нового посетителя'''
+    """тест нового посетителя"""
 
     def setUp(self):
-        '''installation'''
+        """installation"""
         self.browser = webdriver.Firefox()
 
     def tearDown(self):
-        '''демонтаж'''
+        """демонтаж"""
         self.browser.quit()
 
     def wait_for_row_in_list_table(self, row_text):
+        '''ожидать строку в таблице списка'''
         start_time = time.time()
         while True:
             try:
@@ -27,6 +29,10 @@ class NewVisitorTest(LiveServerTestCase):
                 self.assertIn(row_text, [row.text for row in rows])
                 return
             except (AssertionError, WebDriverException) as e:
+                """WebDriverException для случая, когда
+страница не загрузилась и Selenium не может найти табличный элемент на странице,
+ и AssertionError – для случая, когда таблица имеется, но это, возможно, 
+ таблица до перезагрузок страницы, поэтому в ней пока нет нашей строки."""
                 if time.time() - start_time > MAX_WAIT:
                     raise e
                 time.sleep(0.5)
@@ -126,6 +132,30 @@ class NewVisitorTest(LiveServerTestCase):
 
         # Удовлетворенные они оба ложаться спать
 
+    def test_layout_and_styling(self):
+        '''тест макета и стилевого оформления'''
+        # Эдит открывает домашнюю страницу
+        self.browser.get(self.live_server_url)
+        self.browser.set_window_size(1024, 768)
+
+        # Она замечает, что поле ввода аккуратно центрировано
+        inputbox = self.browser.find_element_by_id('id_new_item')
+        self.assertAlmostEqual(
+            inputbox.location['x'] + inputbox.size['width'] / 2,
+            512,
+            delta=10
+        )
+        # Она начинает новый список и видит, что поле ввода там тоже
+        # аккуратно центировано
+        inputbox.send_keys('testing')
+        inputbox.send_keys(Keys.ENTER)
+        self.wait_for_row_in_list_table('1: testing')
+        inputbox = self.browser.find_element_by_id('id_new_item')
+        self.assertAlmostEqual(
+            inputbox.location['x'] + inputbox.size['width'] / 2,
+            512,
+            delta=10
+        )
 
 if __name__ == '__main__':
     unittest.main(warnings='ignore')
